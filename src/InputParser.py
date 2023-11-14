@@ -8,8 +8,9 @@ class InputParser:
     self.file = self.file.split("\n")
     self.list_ops = []
     for i in self.file:
-      op = Operation(i)
-      self.list_ops.append(op)
+      if i != "":
+        op = Operation(i)
+        self.list_ops.append(op)
   
   def get_ops(self):
     return self.list_ops
