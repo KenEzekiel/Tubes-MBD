@@ -1,8 +1,5 @@
 R1(A)
 R2(B)
 W2(C)
-C1
-C2
-XL1(A)
-SL2(B)
-UL(A)
+V2
+V1
