@@ -8,9 +8,9 @@ from Transaction import Transaction
 
 class ValidationProtocol(Algorithm):
 
-
-  def __init__(self, schedule: Schedule):
-    super().__init__(schedule)
+  def __init__(self, schedule: Schedule, outputfilename: str):
+    super().__init__(schedule, outputfilename)
+    self.name = "Validation Protocol"
     
   
   def execute(self):
@@ -36,16 +36,22 @@ class ValidationProtocol(Algorithm):
       if (operation.transaction_id != ""):
         transaction = self.transactions[operation.transaction_id-1]
         
-        transaction.do_operation(operation, self.resources[(ord(operation.resource_name)-65)] if  operation.resource_name != "" else "")
+        ret = transaction.do_operation(operation, self.resources[(ord(operation.resource_name)-65)] if  operation.resource_name != "" else "")
+        super().write(ret)
 
         if operation.op_type == Operation_Type.VALIDATE:
           check = True
           for i in range(operation.transaction_id-1):
             check = self.check(self.transactions[i], self.transactions[operation.transaction_id-1])
             if not check:
-              print(f"Validation error for transaction {operation.transaction_id} when validating against transaction {i+1}")
+              string = f"Validation error for transaction {operation.transaction_id} when validating against transaction {i+1}\nAborting transaction {operation.transaction_id}"
+              print(string)
+              super().write(string)
+              return
           if check:
-            print(f"Validation for transaction {operation.transaction_id} successful")
+            string = f"Validation for transaction {operation.transaction_id} successful"
+            print(string)
+            super().write(string)
 
 
   def check(self, Ti: Transaction, Tj: Transaction):
@@ -57,14 +63,18 @@ class ValidationProtocol(Algorithm):
         condition = True
         for i in Ti.write_set:
           if i in Tj.read_set:
-            print(f"Validation failed because transaction i's write set intersects with transaction j's read set")
+            string = f"Validation failed because transaction i's write set intersects with transaction j's read set"
+            print(string)
+            super().write(string)
             condition = False
         return condition
       else:
         return False
 
-schedule = Schedule("input1")
-print(str(schedule))
-validation_protocol = ValidationProtocol(schedule)
+inputfile = input("Input file: ")
+outputfile = input("Output file: ")
+schedule = Schedule(inputfile)
+validation_protocol = ValidationProtocol(schedule, outputfile)
 validation_protocol.execute()
 print(str(validation_protocol))
+validation_protocol.write(str(validation_protocol))

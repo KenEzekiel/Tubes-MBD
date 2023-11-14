@@ -24,46 +24,62 @@ class Transaction:
     self.finish_ts = None
 
   def x_lock(self, res: Resource):
+    string = ""
     if (res.is_x_lock):
-      print("Resource already exclusively locked, can't lock resource")
+      string = f"Resource {res.name} already exclusively locked, can't lock resource"
     elif (len(res.is_s_lock) != 0):
-      print("Resource is share locked, can't lock resource")
+      string = f"Resource {res.name} is share locked, can't lock resource"
     else:
-      print(f"Transaction {self.id} Exclusive lock on resource {res.name} successful")
+      string = f"Transaction {self.id} Exclusive lock on resource {res.name} successful"
       self.x_locked.append(res)
       res.is_x_lock = True
+    print(string)
+    return string
 
   def s_lock(self, res: Resource):
+    string = ""
     if (res.is_x_lock):
-      print("Resource already exclusively locked, can't lock resource")
+      string = f"Resource {res.name} already exclusively locked, can't lock resource"
     else:
-      print(f"Transaction {self.id} Shared lock on resource {res.name} successful")
+      string = f"Transaction {self.id} Shared lock on resource {res.name} successful"
       self.s_locked.append(res)
       res.is_s_lock.append(self.id)
+    print(string)
+    return string
 
   def x_unlock(self, res: Resource):
+    string = ""
     if (res in self.x_locked):
       self.x_locked.remove(res)
       res.is_x_lock = False
-      print(f"Transaction {self.id} Unlock Exclusive lock on resource {res.name} successful")
+      string = f"Transaction {self.id} Unlock Exclusive lock on resource {res.name} successful"
     else:
-      print(f"Resource {res.name} is not exclusively locked by transaction {self.id}")
+      string = f"Resource {res.name} is not exclusively locked by transaction {self.id}"
+    print(string)
+    return string
 
   def s_unlock(self, res: Resource):
+    string = ""
     if (res in self.s_locked):
       self.s_locked.remove(res)
       res.is_s_lock.remove(self.id)
-      print(f"Transaction {self.id} Unlock Shared lock on resource {res.name} successful")
+      string = f"Transaction {self.id} Unlock Shared lock on resource {res.name} successful"
     else:
-      print(f"Resource {res.name} is not shared locked by transaction {self.id}")
+      string = f"Resource {res.name} is not shared locked by transaction {self.id}"
+    print(string)
+    return string
 
   def read(self, res: Resource):
-    print(f"{self.id} Reading resource {res.name}")
+    string = f"{self.id} Reading resource {res.name}"
     self.read_set.append(res.name)
+    print(string)
+    return string
 
   def write(self, res: Resource):
-    print(f"{self.id} Writing resource {res.name}")
+    string = f"{self.id} Writing resource {res.name}"
     self.write_set.append(res.name)
+    print(string)
+    return string
 
   def unlock_all(self):
     for i in self.x_locked:
@@ -72,26 +88,32 @@ class Transaction:
       self.s_unlock(j)
 
   def commit(self):
-    print(f"Commit Transaction {self.id}")
+    string = f"Commit Transaction {self.id}"
     self.unlock_all()
+    print(string)
+    return string
 
   def validate(self):
-    print(f"Validate Transaction {self.id}")
+    string = f"Validate Transaction {self.id}"
+    print(string)
+    return string
 
   def do_operation(self, operation: Operation, res: Resource):
+    result = ""
     if operation.op_type == Operation_Type.READ:
-      self.read(res)
+      result = self.read(res)
     if operation.op_type == Operation_Type.WRITE:
-      self.write(res)
+      result = self.write(res)
     if operation.op_type == Operation_Type.COMMIT:
-      self.commit()
+      result = self.commit()
     if operation.op_type == Operation_Type.SLOCK:
-      self.s_lock(res)
+      result = self.s_lock(res)
     if operation.op_type == Operation_Type.XLOCK:
-      self.x_lock(res)
+      result = self.x_lock(res)
     if operation.op_type == Operation_Type.VALIDATE:
-      self.validate()
+      result = self.validate()
     self.operations_done.append([operation.op_type.name, operation.resource_name])
+    return result
 
 
   def __str__(self):

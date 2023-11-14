@@ -1,4 +1,5 @@
 from abc import abstractmethod
+from Output import Output
 from Resource import Resource
 from Schedule import Schedule
 from Transaction import Transaction
@@ -8,11 +9,14 @@ class Algorithm:
   schedule: Schedule
   transactions: list
   resources: list
+  output_writer: Output
 
-  def __init__(self, schedule: Schedule):
+  def __init__(self, schedule: Schedule, outputfilename: str):
+    self.name = "Algorithm"
     self.schedule = schedule
     self.transactions = []
     self.resources = []
+    self.output_writer = Output(outputfilename)
     list_transactions_id = []
     list_resources_name = []
 
@@ -36,13 +40,21 @@ class Algorithm:
   @abstractmethod  
   def execute(self):
     # Write the output to an output file (from user input)
-    print("------------  LOG  ------------")
+    string = "------------  SCHEDULE  ------------\n" + str(self.schedule) + "\n"
+    print(string)
+    self.write(string)
+    string = "------------  EXECUTION LOG  ------------"
+    print(string)
+    self.write(string)
 
   def __str__(self):
-    string = "----------\nAlgorithm\n----------\nTransactions:\n"
+    string = f"\n------------  ALGORITHM STATE  ------------\n--------------------\n{self.name}\n--------------------\nTransactions:\n"
     for i in self.transactions:
       string += str(i) + "\n"
     string += "Resources:\n"
     for i in self.resources:
       string += str(i) + "\n"
     return string
+  
+  def write(self, string: str):
+    self.output_writer.write(string)
