@@ -10,10 +10,8 @@ class Schedule:
     self.operations = input_parser.get_ops()
 
   def __str__(self):
-    string = "Schedule"
+    string = "----------\nSchedule\n----------"
     for i in self.operations:
       string += "\n" + str(i) 
     return string
   
-schedule = Schedule("input1")
-print(str(schedule))
