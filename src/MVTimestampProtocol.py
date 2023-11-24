@@ -49,7 +49,7 @@ class MVTimestampProtocol(Algorithm):
             else:
               res.add_version(transaction.ts, transaction.ts)
               super().write(f"-- Transaction {transaction.id} with timestamp {transaction.ts} is writing a new version of {res.name}")
-        ret = transaction.do_operation(operation, self.resources[(ord(operation.resource_name)-65)] if  operation.resource_name != "" else "")
+        ret = transaction.do_operation(operation, self.resources[(ord(operation.resource_name)-65)] if  operation.resource_name != "" else "") # type: ignore
         super().write(ret)
 
 
