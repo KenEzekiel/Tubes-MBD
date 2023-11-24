@@ -1,4 +1,6 @@
 from abc import abstractmethod
+import typing
+from Operation import Operation
 from Output import Output
 from Resource import Resource
 from Schedule import Schedule
@@ -32,19 +34,29 @@ class Algorithm:
         self.resources.append(Resource(i.resource_name))
         list_resources_name.append(i.resource_name)
 
-  def rollback(self, trans: Transaction):
-    for i in trans.operations_done:
-      self.schedule.append(i)
-    trans.operations_done = []
+  def rollback(self, trans: Transaction, update_ts: typing.Optional[int] = None, execute_first: typing.Optional[bool] = False):
+    # rollback, with the transaction being rolled back will be either executed first or later
+    if not execute_first:
+      for i in trans.operations_done:
+        op = Operation(Operation.from_array(trans.id, i))
+        self.schedule.operations.append(op)
+      trans.operations_done = []
+    if execute_first:
+      trans.operations_done.reverse()
+      for i in trans.operations_done:
+        op = Operation(Operation.from_array(trans.id, i))
+        self.schedule.operations.insert(0, op)
+      trans.operations_done = []
+        
+    if update_ts is not None:
+      trans.ts = update_ts
     
   @abstractmethod  
   def execute(self):
     # Write the output to an output file (from user input)
     string = "------------  SCHEDULE  ------------\n" + str(self.schedule) + "\n"
-    print(string)
     self.write(string)
     string = "------------  EXECUTION LOG  ------------"
-    print(string)
     self.write(string)
 
   def __str__(self):
@@ -57,4 +69,8 @@ class Algorithm:
     return string
   
   def write(self, string: str):
-    self.output_writer.write(string)
+    self.output_writer.write(string)  
+    print(string)
+
+  def to_int(self, res_name: str):
+    return (ord(res_name)-65)

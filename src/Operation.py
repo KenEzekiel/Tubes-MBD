@@ -39,7 +39,7 @@ class Operation:
       self.resource_name = string[4]
     elif string[0] == 'U':
       self.op_type = Operation_Type.UNLOCK
-      self.transaction_id = ""
+      self.transaction_id = "" # type: ignore
       self.resource_name = string[3]
     elif string[0] == 'V':
       self.op_type = Operation_Type.VALIDATE
@@ -48,3 +48,22 @@ class Operation:
 
   def __str__(self):
     return f'{self.op_type.name} {self.transaction_id} {self.resource_name}'
+  
+  @staticmethod
+  def from_array(trans_id: int, array: list):
+    string = ""
+    if array[0] == Operation_Type.READ.name:
+      string = f"R{trans_id}({array[1]})"
+    elif array[0] == Operation_Type.WRITE.name:
+      string = f"W{trans_id}({array[1]})"
+    elif array[0] == Operation_Type.COMMIT.name:
+      string = f"C{trans_id}"
+    elif array[0] == Operation_Type.XLOCK.name:
+      string = f"XL{trans_id}({array[1]})"
+    elif array[0] == Operation_Type.SLOCK.name:
+      string = f"SL{trans_id}({array[1]})"
+    elif array[0] == Operation_Type.UNLOCK.name:
+      string = f"UL({array[1]})"
+    elif array[0] == Operation_Type.VALIDATE.name:
+      string = f"V{trans_id}"
+    return string

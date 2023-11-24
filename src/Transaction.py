@@ -3,6 +3,7 @@ from Resource import Resource
 
 class Transaction:
   id: int
+  ts: int
   x_locked: list
   s_locked: list
   operations_done: list
@@ -14,14 +15,15 @@ class Transaction:
 
   def __init__(self, id):
     self.id = id
+    self.ts = id
     self.x_locked = []
     self.s_locked = []
     self.operations_done = []
     self.write_set = []
     self.read_set = []
-    self.start_ts = None
-    self.validation_ts = None
-    self.finish_ts = None
+    self.start_ts = None # type: ignore
+    self.validation_ts = None # type: ignore
+    self.finish_ts = None # type: ignore
 
   def x_lock(self, res: Resource):
     string = ""
@@ -33,7 +35,6 @@ class Transaction:
       string = f"Transaction {self.id} Exclusive lock on resource {res.name} successful"
       self.x_locked.append(res)
       res.is_x_lock = True
-    print(string)
     return string
 
   def s_lock(self, res: Resource):
@@ -44,7 +45,6 @@ class Transaction:
       string = f"Transaction {self.id} Shared lock on resource {res.name} successful"
       self.s_locked.append(res)
       res.is_s_lock.append(self.id)
-    print(string)
     return string
 
   def x_unlock(self, res: Resource):
@@ -55,7 +55,6 @@ class Transaction:
       string = f"Transaction {self.id} Unlock Exclusive lock on resource {res.name} successful"
     else:
       string = f"Resource {res.name} is not exclusively locked by transaction {self.id}"
-    print(string)
     return string
 
   def s_unlock(self, res: Resource):
@@ -66,19 +65,16 @@ class Transaction:
       string = f"Transaction {self.id} Unlock Shared lock on resource {res.name} successful"
     else:
       string = f"Resource {res.name} is not shared locked by transaction {self.id}"
-    print(string)
     return string
 
   def read(self, res: Resource):
     string = f"{self.id} Reading resource {res.name}"
     self.read_set.append(res.name)
-    print(string)
     return string
 
   def write(self, res: Resource):
     string = f"{self.id} Writing resource {res.name}"
     self.write_set.append(res.name)
-    print(string)
     return string
 
   def unlock_all(self):
@@ -90,12 +86,10 @@ class Transaction:
   def commit(self):
     string = f"Commit Transaction {self.id}"
     self.unlock_all()
-    print(string)
     return string
 
   def validate(self):
     string = f"Validate Transaction {self.id}"
-    print(string)
     return string
 
   def do_operation(self, operation: Operation, res: Resource):

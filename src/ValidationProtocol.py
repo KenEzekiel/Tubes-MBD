@@ -45,12 +45,10 @@ class ValidationProtocol(Algorithm):
             check = self.check(self.transactions[i], self.transactions[operation.transaction_id-1])
             if not check:
               string = f"Validation error for transaction {operation.transaction_id} when validating against transaction {i+1}\nAborting transaction {operation.transaction_id}"
-              print(string)
               super().write(string)
               return
           if check:
             string = f"Validation for transaction {operation.transaction_id} successful"
-            print(string)
             super().write(string)
 
 
@@ -64,7 +62,6 @@ class ValidationProtocol(Algorithm):
         for i in Ti.write_set:
           if i in Tj.read_set:
             string = f"Validation failed because transaction i's write set intersects with transaction j's read set"
-            print(string)
             super().write(string)
             condition = False
         return condition
