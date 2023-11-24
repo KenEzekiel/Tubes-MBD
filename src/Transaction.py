@@ -13,7 +13,7 @@ class Transaction:
   write_set: list
   read_set: list
 
-  def __init__(self, id):
+  def __init__(self, id: int):
     self.id = id
     self.ts = id
     self.x_locked = []

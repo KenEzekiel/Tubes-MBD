@@ -17,6 +17,7 @@ class Operation:
   resource_name: str
 
   def __init__(self, string: str):
+    # Translate string to Operation
     if string[0] == 'R':
       self.op_type = Operation_Type.READ
       self.transaction_id = int(string[1])
@@ -50,7 +51,8 @@ class Operation:
     return f'{self.op_type.name} {self.transaction_id} {self.resource_name}'
   
   @staticmethod
-  def from_array(trans_id: int, array: list):
+  def from_array(trans_id: int, array: list[str]) -> str:
+    # Translate array into string
     string = ""
     if array[0] == Operation_Type.READ.name:
       string = f"R{trans_id}({array[1]})"

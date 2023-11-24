@@ -7,7 +7,6 @@ class MVTimestampProtocol(Algorithm):
   def __init__(self, schedule: Schedule, outputfilename: str):
     super().__init__(schedule, outputfilename)
     self.name = "Multiversion Timestamp Ordering Protocol"
-    
   
   def execute(self):
     super().execute()
@@ -17,9 +16,10 @@ class MVTimestampProtocol(Algorithm):
       if i.ts > max_timestamp:
         max_timestamp = i.ts
 
+    # Execute until the schedule is complete
     while len(self.schedule.operations) > 0:
       operation = self.schedule.operations.pop(0)
-      print(str(operation))
+      # Only execute multiversion timestamp ordering protocol for operations with a transaction
       if (operation.transaction_id != ""):
         transaction = self.transactions[operation.transaction_id-1]
         # Get the most relevant version of the resource for the transaction (<= TS of transaction)

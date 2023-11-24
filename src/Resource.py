@@ -8,7 +8,7 @@ class Resource:
   is_s_lock: list
   versions: typing.List[ResourceVersion]
 
-  def __init__(self, name):
+  def __init__(self, name: str):
     self.name = name
     self.value = 0
     self.is_x_lock = False
@@ -20,12 +20,13 @@ class Resource:
     string = f"""Resource {self.name}
   Value: {self.value}
   Is x locked: {self.is_x_lock}
-  Is s locked: {self.is_s_lock}"""
+  Is s locked: {self.is_s_lock}
+  Versions:"""
     for i in self.versions:
       string += str(i)
     return string
   
-  def add_version(self, w_ts, r_ts):
+  def add_version(self, w_ts: int, r_ts: int):
     max_version = 0
     for version in self.versions:
       if version.version > max_version:

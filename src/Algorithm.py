@@ -9,8 +9,8 @@ from Transaction import Transaction
 
 class Algorithm:
   schedule: Schedule
-  transactions: list
-  resources: list
+  transactions: list[Transaction]
+  resources: list[Resource]
   output_writer: Output
 
   def __init__(self, schedule: Schedule, outputfilename: str):
@@ -22,6 +22,7 @@ class Algorithm:
     list_transactions_id = []
     list_resources_name = []
 
+    # Get the list of transactions and resources
     for i in self.schedule.operations:
       if i.transaction_id in list_transactions_id or i.transaction_id == "":
         pass
@@ -47,7 +48,8 @@ class Algorithm:
         op = Operation(Operation.from_array(trans.id, i))
         self.schedule.operations.insert(0, op)
       trans.operations_done = []
-        
+    
+    # Update timestamp
     if update_ts is not None:
       trans.ts = update_ts
     
@@ -69,8 +71,11 @@ class Algorithm:
     return string
   
   def write(self, string: str):
+    # Output writer
     self.output_writer.write(string)  
     print(string)
 
-  def to_int(self, res_name: str):
+  @staticmethod
+  def to_int(res_name: str) -> int:
+    # Translate to int
     return (ord(res_name)-65)

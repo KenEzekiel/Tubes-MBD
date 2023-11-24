@@ -36,7 +36,7 @@ class ValidationProtocol(Algorithm):
       if (operation.transaction_id != ""):
         transaction = self.transactions[operation.transaction_id-1]
         
-        ret = transaction.do_operation(operation, self.resources[(ord(operation.resource_name)-65)] if  operation.resource_name != "" else "")
+        ret = transaction.do_operation(operation, self.resources[(ord(operation.resource_name)-65)] if  operation.resource_name != "" else "") # type: ignore
         super().write(ret)
 
         if operation.op_type == Operation_Type.VALIDATE:

@@ -1,9 +1,9 @@
 
 from InputParser import InputParser
-
+from Operation import Operation
 
 class Schedule:
-  operations: list = []
+  operations: list[Operation] = []
 
   def __init__(self, filename: str):
     input_parser = InputParser(filename)
