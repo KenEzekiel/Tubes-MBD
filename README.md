@@ -8,6 +8,6 @@ RX(Y)
 WX(Y)
 XLZ(Y)
 SLZ(Y)
-ULZ(Y)
+UL(Y)
 CX
 VX
