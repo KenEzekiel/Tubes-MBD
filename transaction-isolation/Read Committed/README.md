@@ -1,4 +1,4 @@
-# Repeatable Read
+# Read Committed
 1. Setting Up PostgreSQL with Docker
 ```shell
 docker run --name postgres-demo -e POSTGRES_PASSWORD=mypassword -d -p 5432:5432 postgres
@@ -22,13 +22,12 @@ INSERT INTO account_balances (balance) VALUES (1000), (2000);
 4. Demo Repeatable Read
 ```shell
 -- Session 1
-BEGIN TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+BEGIN TRANSACTION ISOLATION LEVEL READ COMMITTED;
 SELECT * FROM account_balances WHERE id = 1;
 ```
 ```shell
 -- Session 2
-BEGIN TRANSACTION ISOLATION LEVEL REPEATABLE READ;
-SELECT * FROM account_balances WHERE id = 1;
+BEGIN;
 UPDATE account_balances SET balance = balance + 100 WHERE id = 1;
 COMMIT;
 ```
