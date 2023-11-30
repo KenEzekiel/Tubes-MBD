@@ -44,8 +44,3 @@ This should be error before commit.
 -- Session 2
 COMMIT;
 ```
-
-5. Logs
-```shell
-docker logs postgres-demo
-```

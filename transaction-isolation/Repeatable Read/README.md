@@ -37,8 +37,3 @@ COMMIT;
 SELECT * FROM account_balances WHERE id = 1;
 COMMIT;
 ```
-
-5. Logs
-```shell
-docker logs postgres-demo
-```
