@@ -1,7 +1,6 @@
 
 from Algorithm import Algorithm
 from Operation import Operation_Type
-from Resource import Resource
 from Schedule import Schedule
 from Transaction import Transaction
 
