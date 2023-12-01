@@ -1,7 +1,6 @@
 
 from Algorithm import Algorithm
 from Operation import Operation_Type
-from Resource import Resource
 from Schedule import Schedule
 from Transaction import Transaction
 
@@ -15,6 +14,41 @@ class ValidationProtocol(Algorithm):
   
   def execute(self):
     super().execute()
+    self.update_ts()
+
+    # Then, run all the operations in the schedule
+    # Also get all the write set and read set
+    while len(self.schedule.operations) > 0:
+      operation = self.schedule.operations.pop(0)
+      if (operation.transaction_id != ""):
+        transaction: Transaction = self.get_transaction(operation.transaction_id) # type: ignore
+        
+        ret = transaction.do_operation(operation, self.get_resource(operation.resource_name) if  operation.resource_name != "" else "") # type: ignore
+        super().write(ret)
+
+        if operation.op_type == Operation_Type.VALIDATE:
+          check = True
+          for i in range(operation.transaction_id-1):
+            check = self.check(self.transactions[i], transaction) # type: ignore
+            if not check:
+              string = f"Validation error for transaction {operation.transaction_id} when validating against transaction {i+1}\nAborting transaction {operation.transaction_id}"
+              super().write(string)
+              # Get all remaining operations for the transaction
+              operation_left = []
+              for i in self.schedule.operations:
+                if i.transaction_id == transaction.id and i != operation:
+                  operation_left.append(i)
+                  self.schedule.operations.remove(i)
+              self.rollback(transaction, execute_first=False) # type: ignore
+              # Append the remaining operations
+              for i in operation_left:
+                self.schedule.operations.append(i)
+              self.update_ts()
+          if check:
+            string = f"Validation for transaction {operation.transaction_id} successful"
+            super().write(string)
+
+  def update_ts(self):
     # Get all startTS, validationTS, and finishTS for every transaction, based on the schedule
     for transaction in self.transactions:
       for i in range(len(self.schedule.operations)):
@@ -29,28 +63,6 @@ class ValidationProtocol(Algorithm):
         if (self.schedule.operations[i].transaction_id == transaction.id):
           transaction.finish_ts = i
           break
-
-    # Then, run all the operations in the schedule
-    # Also get all the write set and read set
-    for operation in self.schedule.operations:
-      if (operation.transaction_id != ""):
-        transaction = self.transactions[operation.transaction_id-1]
-        
-        ret = transaction.do_operation(operation, self.resources[(ord(operation.resource_name)-65)] if  operation.resource_name != "" else "") # type: ignore
-        super().write(ret)
-
-        if operation.op_type == Operation_Type.VALIDATE:
-          check = True
-          for i in range(operation.transaction_id-1):
-            check = self.check(self.transactions[i], self.transactions[operation.transaction_id-1])
-            if not check:
-              string = f"Validation error for transaction {operation.transaction_id} when validating against transaction {i+1}\nAborting transaction {operation.transaction_id}"
-              super().write(string)
-              return
-          if check:
-            string = f"Validation for transaction {operation.transaction_id} successful"
-            super().write(string)
-
 
   def check(self, Ti: Transaction, Tj: Transaction):
     # Check 1 finish_ts Ti < start_ts Tj

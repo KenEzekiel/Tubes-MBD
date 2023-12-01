@@ -1,9 +1,10 @@
 
+import typing
 from InputParser import InputParser
 from Operation import Operation
 
 class Schedule:
-  operations: list[Operation] = []
+  operations: typing.List[Operation] = []
 
   def __init__(self, filename: str):
     input_parser = InputParser(filename)

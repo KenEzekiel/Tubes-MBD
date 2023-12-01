@@ -1,3 +1,4 @@
+import typing
 from Operation import Operation, Operation_Type
 from Resource import Resource
 
@@ -8,15 +9,14 @@ class Transaction:
     WAITING = 2
     id: int
     ts: int
-    x_locked: list
-    s_locked: list
-    status: int
-    operations_done: list
+    x_locked: typing.List[Resource]
+    s_locked: typing.List[Resource]
+    operations_done: typing.List[typing.List[str]]
     start_ts: int
     validation_ts: int
     finish_ts: int
-    write_set: list
-    read_set: list
+    write_set: typing.List[str]
+    read_set: typing.List[str]
 
     def __init__(self, id: int):
         self.id = id
@@ -26,7 +26,7 @@ class Transaction:
         self.operations_done = []
         self.write_set = []
         self.read_set = []
-        self.status = 1
+        self.status = Transaction.ACTIVE
         self.start_ts = None  # type: ignore
         self.validation_ts = None  # type: ignore
         self.finish_ts = None  # type: ignore

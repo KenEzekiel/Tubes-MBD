@@ -1,7 +1,9 @@
 from Algorithm import Algorithm
 from Operation import Operation_Type
+from Resource import Resource
 from ResourceVersion import ResourceVersion
 from Schedule import Schedule
+from Transaction import Transaction
 
 class MVTimestampProtocol(Algorithm):
   def __init__(self, schedule: Schedule, outputfilename: str):
@@ -21,10 +23,10 @@ class MVTimestampProtocol(Algorithm):
       operation = self.schedule.operations.pop(0)
       # Only execute multiversion timestamp ordering protocol for operations with a transaction
       if (operation.transaction_id != ""):
-        transaction = self.transactions[operation.transaction_id-1]
+        transaction: Transaction = self.get_transaction(operation.transaction_id) # type: ignore
         # Get the most relevant version of the resource for the transaction (<= TS of transaction)
         if operation.resource_name != "":
-          res = self.resources[super().to_int(operation.resource_name)]
+          res: Resource = self.get_resource(operation.resource_name) # type: ignore
           version_accepted: ResourceVersion = ResourceVersion(0,0,0)
           res.versions.reverse()
           for version in res.versions:
@@ -42,6 +44,8 @@ class MVTimestampProtocol(Algorithm):
             if transaction.ts < version_accepted.r_ts:
               super().write(f"-- Transaction {transaction.id} with timestamp {transaction.ts} < version {version_accepted.version} of {res.name} read timestamp {version_accepted.r_ts}, rolling back transaction")
               max_timestamp += 1
+              # Add last rolled back operation
+              transaction.operations_done.append([operation.op_type.name, operation.resource_name])
               self.rollback(transaction, max_timestamp, execute_first=True)
               continue
             elif transaction.ts == version_accepted.w_ts:
