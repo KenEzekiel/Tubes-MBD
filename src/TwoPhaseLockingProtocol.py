@@ -44,14 +44,14 @@ class TwoPhaseLockingProtocol(Algorithm):
                 conflicting_tx_id = self.find_conflicting_tid(resource)
                 self.handle_lock_conflict(tx_id, conflicting_tx_id, resource.name)
             else:
-                self.execute_operation(operation)
+                self.execute_operation(transaction, operation)
 
         elif operation.op_type == Operation_Type.COMMIT:
             self.commit_transaction(tx_id)
 
-    # TODO: Implement this
-    def execute_operation(self,  operation):
-        ...
+    def execute_operation(self, transaction, operation):
+        ret = transaction.do_operation(operation, self.resources[(ord(operation.resource_name)-65)] if  operation.resource_name != "" else "")
+        super().write(ret)
 
     # TODO: Implement this
     def find_conflicting_tid(self, resource):
