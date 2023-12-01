@@ -15,6 +15,7 @@ class Resource:
     self.is_s_lock = []
     self.versions = []
     self.versions.append(ResourceVersion(0,0,0))
+    self.lock_holder = None
 
   def __str__(self):
     string = f"""Resource {self.name}
