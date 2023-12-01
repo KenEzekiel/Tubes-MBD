@@ -40,18 +40,22 @@ class TwoPhaseLockingProtocol(Algorithm):
             return
 
         if operation.op_type in [Operation_Type.READ, Operation_Type.WRITE]:
+            # Growing phase: Transaction tries to acquire locks
             lock_success = transaction.x_lock(resource) if resource else False
 
             if not lock_success and resource:
+                # Handling lock conflict, possibly leading to waiting or aborting
                 conflicting_tx_id = resource.lock_holder
                 if conflicting_tx_id is not None:
                     self.handle_lock_conflict(transaction.id, conflicting_tx_id, resource.name)
             else:
+                # Successfully acquired lock and processing the operation
                 ret = transaction.do_operation(operation, self.resources[
                     self.to_int(operation.resource_name)] if operation.resource_name != "" else "")
                 super().write(ret)
 
         elif operation.op_type == Operation_Type.COMMIT:
+            # Shrinking phase starts: Transaction is committing and will release locks
             self.commit_transaction(transaction.id)
 
     def handle_lock_conflict(self, tx_id, conflicting_tx_id, res_name):
