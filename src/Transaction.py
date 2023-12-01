@@ -31,16 +31,26 @@ class Transaction:
         self.validation_ts = None  # type: ignore
         self.finish_ts = None  # type: ignore
 
+    # def x_lock(self, res: Resource):
+    #     if res.is_x_lock:
+    #         string = f"Resource {res.name} already exclusively locked, can't lock resource"
+    #     elif len(res.is_s_lock) != 0:
+    #         string = f"Resource {res.name} is share locked, can't lock resource"
+    #     else:
+    #         string = f"Transaction {self.id} Exclusive lock on resource {res.name} successful"
+    #         self.x_locked.append(res)
+    #         res.is_x_lock = True
+    #     return string
+
     def x_lock(self, res: Resource):
-        if res.is_x_lock:
-            string = f"Resource {res.name} already exclusively locked, can't lock resource"
-        elif len(res.is_s_lock) != 0:
-            string = f"Resource {res.name} is share locked, can't lock resource"
+        if res.is_x_lock and res.lock_holder != self.id:
+            return False
         else:
-            string = f"Transaction {self.id} Exclusive lock on resource {res.name} successful"
-            self.x_locked.append(res)
-            res.is_x_lock = True
-        return string
+            if not res.is_x_lock:
+                self.x_locked.append(res)
+                res.is_x_lock = True
+                res.lock_holder = self.id
+            return True
 
     def s_lock(self, res: Resource):
         if res.is_x_lock:
