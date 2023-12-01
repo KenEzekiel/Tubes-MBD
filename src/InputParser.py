@@ -1,8 +1,9 @@
 
+import typing
 from Operation import Operation
 
 class InputParser:
-  list_ops: list[Operation]
+  list_ops: typing.List[Operation]
 
   def __init__(self, filename: str):
     self.file = open(f"./inputs/{filename}.txt", "r").read()

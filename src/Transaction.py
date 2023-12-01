@@ -1,17 +1,18 @@
+import typing
 from Operation import Operation, Operation_Type
 from Resource import Resource
 
 class Transaction:
   id: int
   ts: int
-  x_locked: list
-  s_locked: list
-  operations_done: list
+  x_locked: typing.List[Resource]
+  s_locked: typing.List[Resource]
+  operations_done: typing.List[typing.List[str]]
   start_ts: int
   validation_ts: int
   finish_ts: int
-  write_set: list
-  read_set: list
+  write_set: typing.List[str]
+  read_set: typing.List[str]
 
   def __init__(self, id: int):
     self.id = id

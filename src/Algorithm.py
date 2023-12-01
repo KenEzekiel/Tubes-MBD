@@ -9,8 +9,8 @@ from Transaction import Transaction
 
 class Algorithm:
   schedule: Schedule
-  transactions: list[Transaction]
-  resources: list[Resource]
+  transactions: typing.List[Transaction]
+  resources: typing.List[Resource]
   output_writer: Output
 
   def __init__(self, schedule: Schedule, outputfilename: str):
@@ -34,6 +34,10 @@ class Algorithm:
       else:
         self.resources.append(Resource(i.resource_name))
         list_resources_name.append(i.resource_name)
+    
+    self.transactions = sorted(self.transactions, key=lambda x : x.id)
+    self.resources = sorted(self.resources, key=lambda x : x.name)
+
 
   def rollback(self, trans: Transaction, update_ts: typing.Optional[int] = None, execute_first: typing.Optional[bool] = False):
     # rollback, with the transaction being rolled back will be either executed first or later
@@ -79,3 +83,13 @@ class Algorithm:
   def to_int(res_name: str) -> int:
     # Translate to int
     return (ord(res_name)-65)
+  
+  def get_transaction(self, trans_id: int) -> Transaction | None:
+    for i in self.transactions:
+      if i.id == trans_id:
+        return i
+      
+  def get_resource(self, res_name: str) -> Resource | None:
+    for i in self.resources:
+      if i.name == res_name:
+        return i
