@@ -12,6 +12,7 @@ class TwoPhaseLockingProtocol(Algorithm):
         self.name = "Strict Two Phase Locking Protocol"
         self.transaction_timestamps = {t.id: datetime.now() for t in self.transactions}
         self.waiting_queues = defaultdict(deque)
+        self.retry_queue = deque()
         self.transaction_map = {t.id: i for i, t in enumerate(self.transactions)}
 
     def execute(self):
@@ -27,13 +28,7 @@ class TwoPhaseLockingProtocol(Algorithm):
 
             self.process_operation(operation)
 
-    def execute_operation(self, transaction, operation):
-        ret = transaction.do_operation(operation, self.resources[
-            self.to_int(operation.resource_name)] if operation.resource_name != "" else "")
-        super().write(ret)
-
-    def find_conflicting_tid(self, resource):
-        return resource.lock_holder
+        self.process_retry_queue()
 
     def process_operation(self, operation):
         tx_index = self.transaction_map[operation.transaction_id]
@@ -44,14 +39,13 @@ class TwoPhaseLockingProtocol(Algorithm):
             lock_success = transaction.x_lock(resource) if resource else False
 
             if not lock_success and resource:
-                conflicting_tx_id = self.find_conflicting_tid(resource)
+                conflicting_tx_id = resource.lock_holder
                 if conflicting_tx_id is not None:
                     self.handle_lock_conflict(transaction.id, conflicting_tx_id, resource.name)
-                else:
-                    self.waiting_queues[resource.name].append(transaction.id)
-                    transaction.status = Transaction.WAITING
             else:
-                self.execute_operation(transaction, operation)
+                ret = transaction.do_operation(operation, self.resources[
+                    self.to_int(operation.resource_name)] if operation.resource_name != "" else "")
+                super().write(ret)
 
         elif operation.op_type == Operation_Type.COMMIT:
             self.commit_transaction(transaction.id)
@@ -69,26 +63,33 @@ class TwoPhaseLockingProtocol(Algorithm):
     def commit_transaction(self, tx_id):
         tx_index = self.transaction_map[tx_id]
         transaction = self.transactions[tx_index]
+
         ret = transaction.commit()
         super().write(ret)
-        self.process_waiting_queue()
 
-    def process_waiting_queue(self):
-        # Process the waiting queue for each resource
-        for res_name, queue in self.waiting_queues.items():
-            while queue:
-                waiting_tx_id = queue.popleft()
-                waiting_tx_index = self.transaction_map[waiting_tx_id]
-                self.transactions[waiting_tx_index].status = Transaction.ACTIVE
-                for op in self.schedule.operations:
-                    if op.transaction_id == waiting_tx_id:
-                        self.process_operation(op)
+        # Remove operations from retry_queue that belong to the committed transaction
+        self.retry_queue = deque(op for op in self.retry_queue if op.transaction_id != tx_id)
+
+        self.process_retry_queue()
+
+    def process_retry_queue(self):
+        while self.retry_queue:
+            operation = self.retry_queue.popleft()
+            self.process_operation(operation)
 
     def abort_transaction(self, tx_id):
         tx_index = self.transaction_map[tx_id]
         transaction = self.transactions[tx_index]
         transaction.abort()
-        self.process_waiting_queue()
+
+        for op in self.schedule.operations:
+            if op.transaction_id == tx_id:
+                self.retry_queue.append(op)
+
+        # print("RETRY QUEUE: ")
+        # for operation in self.retry_queue:
+        #     print(operation)
+        # print("END")
 
 
 inputFile = input("Input file: ")
