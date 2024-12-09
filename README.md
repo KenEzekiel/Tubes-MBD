@@ -2,6 +2,8 @@
 
 Proof of concept for implementing concurrency control and recovery mechanisms in a Database Management System (DBMS). This project aims to demonstrate how these critical features can be effectively integrated to ensure data integrity and consistency during simultaneous transactions and system failures. This project is written in Python, and simulates the algorithms implemented in Database Management Systems, such as Two Phase Locking Protocol, MV Timestamp Procol, and Validation Protocol.
 
+`Developed for the fulfillment of the IF3140	Manajemen Basis Data Course of Bandung Institute of Technology`
+
 ## How to Use
 1. Clone or fork this repository
 ```sh
